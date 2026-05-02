@@ -166,16 +166,30 @@ else
     filename="$APP-$target$archive_ext"
 
 
-    if [ "$os" = "linux" ]; then
-        if ! command -v tar >/dev/null 2>&1; then
-             echo -e "${RED}Error: 'tar' is required but not installed.${NC}"
-             exit 1
-        fi
-    else
-        if ! command -v unzip >/dev/null 2>&1; then
-            echo -e "${RED}Error: 'unzip' is required but not installed.${NC}"
+    # Check for required build tools
+    if ! command -v bun >/dev/null 2>&1; then
+        echo -e "${RED}Error: 'bun' is required but not installed.${NC}"
+        echo -e "${MUTED}Install bun from: https://bun.sh${NC}"
+        exit 1
+    fi
+
+    if ! command -v git >/dev/null 2>&1; then
+        echo -e "${RED}Error: 'git' is required but not installed.${NC}"
+        exit 1
+    fi
+
+    repo="MehdiGhorb/autonomous_coding_agent"
+    
+    if [ -z "$requested_version" ]; then
+        release_info=$(curl -s "https://api.github.com/repos/$repo/releases/latest")
+        specific_version=$(echo "$release_info" | sed -n 's/.*"tag_name": *"\([^"]*\)".*/\1/p')
+        
+        if [[ -z "$specific_version" ]]; then
+            echo -e "${RED}Failed to fetch version information from $repo${NC}"
             exit 1
         fi
+    else
+        specific_version="$requested_version"
     fi
 fi
 
@@ -299,25 +313,59 @@ download_with_progress() {
     return $ret
 }
 
-download_and_install() {
-    print_message info "\n${MUTED}Installing ${NC}forgeloop ${MUTED}version: ${NC}$specific_version"
-    local tmp_dir="${TMPDIR:-/tmp}/forgeloop_install_$$"
+build_and_install() {
+    print_message info "\n${MUTED}Building and installing ${NC}forgeloop ${MUTED}version: ${NC}$specific_version"
+    local tmp_dir="${TMPDIR:-/tmp}/forgeloop_build_$$"
     mkdir -p "$tmp_dir"
 
-    if [[ "$os" == "windows" ]] || ! [ -t 2 ] || ! download_with_progress "$url" "$tmp_dir/$filename"; then
-        # Fallback to standard curl on Windows, non-TTY environments, or if custom progress fails
-        curl -# -L -o "$tmp_dir/$filename" "$url"
+    print_message info "${MUTED}Cloning repository...${NC}"
+    if ! git clone --depth 1 --branch "$specific_version" "https://github.com/$repo.git" "$tmp_dir/repo"; then
+        echo -e "${RED}Error: Failed to clone repository at tag $specific_version${NC}"
+        rm -rf "$tmp_dir"
+        exit 1
     fi
 
-    if [ "$os" = "linux" ]; then
-        tar -xzf "$tmp_dir/$filename" -C "$tmp_dir"
-    else
-        unzip -q "$tmp_dir/$filename" -d "$tmp_dir"
+    cd "$tmp_dir/repo/packages/opencode"
+    
+    print_message info "${MUTED}Upgrading bun to required version...${NC}"
+    if ! bun upgrade; then
+        echo -e "${RED}Error: Failed to upgrade bun${NC}"
+        cd - > /dev/null
+        rm -rf "$tmp_dir"
+        exit 1
     fi
 
-    mv "$tmp_dir/forgeloop" "$INSTALL_DIR"
+    print_message info "${MUTED}Installing dependencies...${NC}"
+    if ! bun install; then
+        echo -e "${RED}Error: Failed to install dependencies${NC}"
+        cd - > /dev/null
+        rm -rf "$tmp_dir"
+        exit 1
+    fi
+
+    print_message info "${MUTED}Building forgeloop...${NC}"
+    if ! bun run script/build.ts --single; then
+        echo -e "${RED}Error: Failed to build forgeloop${NC}"
+        cd - > /dev/null
+        rm -rf "$tmp_dir"
+        exit 1
+    fi
+
+    # Find the built binary in the dist directory for current platform
+    local built_binary=$(find dist -name "opencode" -type f | head -1)
+    if [ ! -f "$built_binary" ]; then
+        echo -e "${RED}Error: Built binary not found${NC}"
+        cd - > /dev/null
+        rm -rf "$tmp_dir"
+        exit 1
+    fi
+
+    cp "$built_binary" "$INSTALL_DIR/forgeloop"
     chmod 755 "${INSTALL_DIR}/forgeloop"
+    
+    cd - > /dev/null
     rm -rf "$tmp_dir"
+    print_message info "${MUTED}Build complete!${NC}"
 }
 
 install_from_binary() {
@@ -330,7 +378,7 @@ if [ -n "$binary_path" ]; then
     install_from_binary
 else
     check_version
-    download_and_install
+    build_and_install
 fi
 
 
