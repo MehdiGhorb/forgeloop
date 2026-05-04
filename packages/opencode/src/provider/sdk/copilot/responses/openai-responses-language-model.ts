@@ -1696,6 +1696,14 @@ function getResponsesModelConfig(modelId: string): ResponsesModelConfig {
     }
   }
 
+  if (modelId.startsWith("gpt-5-nano")) {
+    return {
+      ...defaults,
+      isReasoningModel: true,
+      systemMessageMode: "system",
+    }
+  }
+
   // o series reasoning models:
   if (
     modelId.startsWith("o") ||

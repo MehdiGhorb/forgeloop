@@ -117,6 +117,14 @@ See `specs/effect/migration.md` for the compact pattern reference and examples.
 - Prefer `Path.Path`, `Config`, `Clock`, and `DateTime` when those concerns are already inside Effect code.
 - For background loops or scheduled tasks, use `Effect.repeat` or `Effect.schedule` with `Effect.forkScoped` in the layer definition.
 
+## Change Verification
+
+- After any code change, run the most appropriate verification for the touched area before wrapping up.
+- For app work, prefer a real runtime check first, then a user-level test that exercises the feature path.
+- For web surfaces, use the app itself plus Playwright or another end-to-end flow when it exists; for backend or library changes, use the narrowest targeted test or package check.
+- If verification fails, fix the failure and rerun the same check until it passes or you have a concrete blocker.
+- Skip this only for purely informational requests or changes that do not affect code behavior.
+
 ## Effect.cached for deduplication
 
 Use `Effect.cached` when multiple concurrent callers should share a single in-flight computation rather than storing `Fiber | undefined` or `Promise | undefined` manually. See `specs/effect/migration.md` for the full pattern.

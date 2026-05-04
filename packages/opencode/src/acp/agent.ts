@@ -1001,6 +1001,47 @@ export class Agent implements ACPAgent {
             .catch((err) => {
               log.error("failed to send text to ACP", { error: err })
             })
+
+          // Heuristic: if the assistant emitted a todo-style text (numbered list, bullets,
+          // checkboxes, or mentions "todo(s)"), convert it into a session plan so the
+          // sidebar displays the tasks rather than only showing them as chat text.
+          try {
+            if (message.info.role === "assistant") {
+              const txt = part.text
+              const lines = txt.split(/\r?\n/).map((l) => l.trim())
+              const listItems = lines.filter((l) => /^(?:[-*]\s+|\d+\.|- \[|\* \[)/.test(l) || /^\d+\)/.test(l))
+              const mentionsTodo = /\bto-?do?s?\b/i.test(txt)
+              if (mentionsTodo || listItems.length >= 2) {
+                const entries = (listItems.length ? listItems : lines)
+                  .map((line) => {
+                    // strip leading bullets/numbers
+                    const content = line.replace(/^[-*]\s+|^\d+\.\s+|^\d+\)\s+/, "").replace(/^[-*]\s*\[.?\]\s*/,'')
+                    let status: PlanEntry["status"] = "pending"
+                    if (/\[x\]|\[X\]|✓/.test(line)) status = "completed"
+                    else if (/\[ ?\]|^[-*]\s+/.test(line) && /in[-_ ]?progress|in progress|\bin_progress\b|\bin-progress\b|\bin progress\b/i.test(line)) status = "in_progress"
+                    else if (/cancelled|canceled/i.test(line)) status = "cancelled"
+                    return { priority: "medium", status, content }
+                  })
+                  .slice(0, 200)
+
+                if (entries.length > 0) {
+                  await this.connection
+                    .sessionUpdate({
+                      sessionId,
+                      update: {
+                        sessionUpdate: "plan",
+                        entries,
+                      },
+                    })
+                    .catch((error) => {
+                      log.error("failed to send parsed todo session update", { error })
+                    })
+                }
+              }
+            }
+          } catch (err) {
+            log.error("todo parse error", { error: err })
+          }
         }
       } else if (part.type === "file") {
         // Replay file attachments as appropriate ACP content blocks.

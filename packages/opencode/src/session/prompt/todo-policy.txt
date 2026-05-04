@@ -1,0 +1,4 @@
+## Task management
+- Use the todowrite tool to create a TODO list for any task with 3+ steps, multiple subtasks, or when the user requests it.
+- Skip the TODO list only for truly trivial or purely informational requests.
+- Keep the TODO list updated as you work, marking items completed promptly.
