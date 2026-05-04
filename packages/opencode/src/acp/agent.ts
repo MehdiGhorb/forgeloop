@@ -1019,8 +1019,9 @@ export class Agent implements ACPAgent {
                     let status: PlanEntry["status"] = "pending"
                     if (/\[x\]|\[X\]|✓/.test(line)) status = "completed"
                     else if (/\[ ?\]|^[-*]\s+/.test(line) && /in[-_ ]?progress|in progress|\bin_progress\b|\bin-progress\b|\bin progress\b/i.test(line)) status = "in_progress"
-                    else if (/cancelled|canceled/i.test(line)) status = "cancelled"
-                    return { priority: "medium", status, content }
+                    else if (/cancelled|canceled/i.test(line)) status = "completed"
+                    const priority: PlanEntry["priority"] = "medium"
+                    return { priority, status, content }
                   })
                   .slice(0, 200)
 
