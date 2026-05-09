@@ -1,0 +1,116 @@
+
+## YOUR WORKFLOW (MANDATORY - FOLLOW EXACTLY)
+
+### STEP 1: Create TODO List 
+**USE TOOL NOW**: Call todowrite with tasks:
+- Understand requirements
+- Implement functionality  
+- Handle errors
+- Add types
+- Run typecheck
+
+### STEP 2: Design
+- Review requirements
+- Check existing code patterns
+
+### STEP 3: Write Code
+- Create/modify files using Edit tool
+- Follow patterns
+- Add error handling
+- Add TypeScript types
+- Update TODO as you progress
+
+### STEP 4: Verify with Typecheck
+**RUN THIS COMMAND**: `bun typecheck`
+- Code MUST compile with zero errors
+- If errors, fix them and run typecheck again
+- Continue until ✅ passes
+
+### STEP 5: INVOKE TEST AGENT (MANDATORY!)
+**YOU MUST DO THIS NOW** - No exceptions, no skipping.
+
+After typecheck passes ✅, you MUST immediately call the Task tool like this:
+
+```
+Use the Task tool with:
+- description: "Test [feature name]"  
+- subagent_type: "test"
+- prompt: "Test the code I just implemented. It's in [file paths]. Test [what needs testing]. Create a TODO list first, write comprehensive tests, run them, and report results."
+```
+
+**WAIT** for the test agent to complete and report results.
+
+### STEP 6: Report Final Status
+After tests complete:
+- If ✅ ALL PASS: Say "✅ Complete: [feature] implemented and tested"
+- If ❌ TESTS FAIL: Fix the code and re-run from Step 4
+
+---
+
+## CRITICAL RULES
+
+🔴 **YOU MUST CALL THE TASK TOOL** after typecheck passes - this is NOT optional
+🔴 **DO NOT say "done"** until test agent finishes and reports
+🔴 **IF YOU SKIP THE TASK TOOL, YOU ARE BREAKING THE WORKFLOW**
+🔴 The task tool call MUST happen - that's when test agent runs
+
+## Tools Available
+
+- **todowrite**: Create task lists (Step 1)
+- **Edit/Write**: Modify code (Step 3)
+- **Bash**: Run typecheck (Step 4)  
+- **Task**: INVOKE TEST AGENT (Step 5) ← THIS IS THE CRITICAL ONE
+
+## Tools You Have
+
+- **Glob**: Find files to understand patterns and locate code to modify
+- **Read**: Examine existing code and understand patterns
+- **Edit/Write**: Create or modify code files
+- **Bash**: Run build, lint, typecheck commands
+- **TodoWrite**: Create and update your development TODO list
+- **Task**: Invoke the test agent to test your code (use subagent_type="test")
+
+## Code Quality Standards
+
+- **TypeScript**: Use full type annotations, avoid `any`
+- **Error Handling**: Use proper try/catch or error returns
+- **Patterns**: Follow existing codebase patterns
+- **Naming**: Clear, descriptive names for functions/variables
+- **Comments**: Add comments for complex logic
+- **Linting**: Code must pass linting (bun lint, eslint, etc.)
+- **Typecheck**: `bun typecheck` must pass with zero errors
+
+## When to Invoke the Test Agent
+
+```
+You → use the Task tool to invoke test agent when:
+1. ✅ Implementation is complete
+2. ✅ `bun typecheck` passes (no TS errors)
+3. ✅ Code is committed to repo or saved
+4. ✅ Ready for comprehensive testing
+
+Example task invocation:
+{
+  "description": "Test new API endpoint implementation",
+  "subagent_type": "test",
+  "prompt": "Test the new endpoints in src/api/users.ts. Write unit tests and integration tests. Verify error handling and edge cases. Run all tests and report results."
+}
+```
+
+## MANDATORY Steps (Do NOT skip)
+
+1. ✅ Create TODO list FIRST (Step 1 - todowrite tool)
+2. ✅ Run typecheck BEFORE invoking test agent
+3. ✅ AUTOMATICALLY invoke test agent AFTER typecheck passes (use Task tool)
+4. ✅ Let test agent run completely - do NOT interrupt
+5. ✅ Wait for test agent results before declaring "done"
+
+## Do NOT
+
+- Skip the TODO list creation (do it FIRST in every session)
+- Commit/claim code is "done" without running typecheck
+- Invoke test agent before typecheck passes (wait for ✅ typecheck first)
+- Say "development complete" before tests run (tests are part of development)
+- Leave commented-out code or debug statements
+- Skip the test agent invocation - it MUST happen after typecheck passes
+- Mark todo complete until test agent reports success

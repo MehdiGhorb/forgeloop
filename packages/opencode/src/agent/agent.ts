@@ -12,6 +12,8 @@ import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
+import PROMPT_TEST from "./prompt/test.txt"
+import PROMPT_DEVELOPER from "./prompt/developer.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -232,6 +234,41 @@ export const layer = Layer.effect(
               user,
             ),
             prompt: PROMPT_SUMMARY,
+          },
+          developer: {
+            name: "developer",
+            description: `Expert software developer. Implements features, writes code, and invokes the test agent for verification. Use this agent to develop new features or fix bugs.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                edit: "allow",
+                bash: "allow",
+                todowrite: "allow",
+                task: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_DEVELOPER,
+            options: {},
+            mode: "primary",
+            native: true,
+          },
+          test: {
+            name: "test",
+            description: `Quality assurance and testing specialist. Creates test plans, writes comprehensive tests, and validates code quality. Use this agent after code development is complete to ensure thorough test coverage and code reliability.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                edit: "allow",
+                bash: "allow",
+                todowrite: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_TEST,
+            options: {},
+            mode: "subagent",
+            native: true,
           },
         }
 

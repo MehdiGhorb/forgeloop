@@ -2,14 +2,33 @@ Launch a new agent to handle complex, multistep tasks autonomously.
 
 When using the Task tool, you must specify a subagent_type parameter to select which agent type to use.
 
-When to use the Task tool:
-- When you are instructed to execute custom slash commands. Use the Task tool with the slash command invocation as the entire prompt. The slash command can take arguments. For example: Task(description="Check the file", prompt="/check-file path/to/file.py")
+## When to USE the Task tool (Do this proactively!):
 
-When NOT to use the Task tool:
-- If you want to read a specific file path, use the Read or Glob tool instead of the Task tool, to find the match more quickly
-- If you are searching for a specific class definition like "class Foo", use the Glob tool instead, to find the match more quickly
-- If you are searching for code within a specific file or set of 2-3 files, use the Read tool instead of the Task tool, to find the match more quickly
-- Other tasks that are not related to the agent descriptions above
+**1. Agent Chaining (MANDATORY after completing your part):**
+- After writing code → invoke test agent to test it
+- After planning → invoke developer agent to implement
+- After implementing a feature → automatically invoke test agent
+- Example: You finish coding, say "Now I'll invoke the test agent" → use Task tool with subagent_type="test"
+
+**2. Custom slash commands:**
+- When instructed to execute custom slash commands, pass the command as the prompt
+- Example: Task(description="Check file", prompt="/check-file path/to/file.py")
+
+## When NOT to use the Task tool:
+- Reading specific files → use Read or Glob tool
+- Searching for code patterns → use Grep tool  
+- Finding files by pattern → use Glob tool
+- These are faster and don't need a new agent session
+
+## IMPORTANT: Agent Chaining Workflow
+
+If your role/agent description says you should work with another agent after you're done:
+**You MUST proactively use the Task tool to invoke that agent automatically.**
+
+Examples:
+- Developer agent → After code passes typecheck, ALWAYS invoke test agent
+- Test agent → After tests complete, ALWAYS report results and offer next steps
+- Reviewer agent → After review, ALWAYS invoke test agent if changes made
 
 
 Usage notes:
