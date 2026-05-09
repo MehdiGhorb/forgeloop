@@ -17,16 +17,20 @@ Options:
     -h, --help              Display this help message
     -v, --version <version> Install a specific version (e.g., 1.0.180)
     -b, --binary <path>     Install from a local binary instead of downloading
+    -l, --local             Build and install from local repository (ignores remote)
         --no-modify-path    Don't modify shell config files (.zshrc, .bashrc, etc.)
 
 Examples:
     ./install --binary /path/to/forgeloop
+    ./install --local
+    ./install --version 1.0.180
 EOF
 }
 
 requested_version=${VERSION:-}
 no_modify_path=false
 binary_path=""
+build_local=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -52,6 +56,10 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             ;;
+        -l|--local)
+            build_local=true
+            shift
+            ;;
         --no-modify-path)
             no_modify_path=true
             shift
@@ -72,6 +80,8 @@ if [ -n "$binary_path" ]; then
         echo -e "${RED}Error: Binary not found at ${binary_path}${NC}"
         exit 1
     fi
+    specific_version="local"
+elif [ "$build_local" = "true" ]; then
     specific_version="local"
 else
     raw_os=$(uname -s)
@@ -374,8 +384,54 @@ install_from_binary() {
     chmod 755 "${INSTALL_DIR}/forgeloop"
 }
 
+build_and_install_local() {
+    print_message info "\n${MUTED}Building and installing ${NC}forgeloop ${MUTED}from local repository${NC}"
+    
+    local repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+    local opencode_dir="$repo_root/packages/opencode"
+    
+    if [ ! -d "$opencode_dir" ]; then
+        echo -e "${RED}Error: Local repository not found at $opencode_dir${NC}"
+        exit 1
+    fi
+    
+    cd "$opencode_dir"
+    
+    print_message info "${MUTED}Upgrading bun to required version...${NC}"
+    if ! bun upgrade; then
+        echo -e "${RED}Error: Failed to upgrade bun${NC}"
+        exit 1
+    fi
+
+    print_message info "${MUTED}Installing dependencies...${NC}"
+    if ! bun install; then
+        echo -e "${RED}Error: Failed to install dependencies${NC}"
+        exit 1
+    fi
+
+    print_message info "${MUTED}Building forgeloop...${NC}"
+    if ! bun run script/build.ts --single; then
+        echo -e "${RED}Error: Failed to build forgeloop${NC}"
+        exit 1
+    fi
+
+    # Find the built binary in the dist directory for current platform
+    local built_binary=$(find dist -name "opencode" -type f | head -1)
+    if [ ! -f "$built_binary" ]; then
+        echo -e "${RED}Error: Built binary not found${NC}"
+        exit 1
+    fi
+
+    cp "$built_binary" "$INSTALL_DIR/forgeloop"
+    chmod 755 "${INSTALL_DIR}/forgeloop"
+    
+    print_message info "${MUTED}Build complete!${NC}"
+}
+
 if [ -n "$binary_path" ]; then
     install_from_binary
+elif [ "$build_local" = "true" ]; then
+    build_and_install_local
 else
     check_version
     build_and_install
