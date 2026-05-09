@@ -255,11 +255,18 @@ export const layer = Layer.effect(
           },
           test: {
             name: "test",
-            description: `Quality assurance and testing specialist. Creates test plans, writes comprehensive tests, and validates code quality. Use this agent after code development is complete to ensure thorough test coverage and code reliability.`,
+            description: `Quality assurance and testing specialist. Creates test plans, writes comprehensive tests, and validates code quality. Use this agent after code development is complete to ensure thorough test coverage and code reliability. This agent may ONLY modify test files; it must not modify main source files. If changes to source are required, report them to the developer agent instead of applying persistent edits.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
-                edit: "allow",
+                // Deny edits to main source by default; explicitly allow edits only under test file paths
+                edit: {
+                  "*": "deny",
+                  "**/*.test.*": "allow",
+                  "**/*.spec.*": "allow",
+                  "tests/**": "allow",
+                  "**/__tests__/**": "allow",
+                },
                 bash: "allow",
                 todowrite: "allow",
               }),
