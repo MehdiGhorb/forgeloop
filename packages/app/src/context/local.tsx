@@ -84,7 +84,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         variant?: string | null
       }
     }>({
-      current: list()[0]?.name,
+      current: list().find(a => a.name === "orchestration")?.name ?? list()[0]?.name,
       draft: undefined,
       last: undefined,
     })
@@ -115,7 +115,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
         return
       }
       if (items.some((item) => item.name === store.current)) return
-      setStore("current", items[0]?.name)
+      setStore("current", items.find(a => a.name === "orchestration")?.name ?? items[0]?.name)
     })
 
     const scope = createMemo<State | undefined>(() => {
@@ -197,12 +197,20 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
             model: item.model ?? prev?.model,
             variant: item.variant ?? prev?.variant,
           } satisfies State
-          const session = id()
-          if (session) {
-            setSaved("session", session, next)
-            return
+          if (id()) {
+            const sessionId = id()
+            if (sessionId) {
+              const newSessionData = {
+                ...saved.session,
+              }
+              newSessionData[sessionId] = {
+                agent: item.name,
+                model: item.model ?? prev?.model,
+                variant: item.variant ?? prev?.variant,
+              }
+              setSaved("session", newSessionData)
+            }
           }
-          setStore("draft", next)
         })
       },
       move(direction: 1 | -1) {

@@ -14,6 +14,7 @@ import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
 import PROMPT_TEST from "./prompt/test.txt"
 import PROMPT_DEVELOPER from "./prompt/developer.txt"
+import PROMPT_ORCHESTRATION from "./prompt/orchestration.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -149,6 +150,29 @@ export const layer = Layer.effect(
             mode: "primary",
             native: true,
           },
+          orchestration: {
+            name: "orchestration",
+            description: `Expert software architect and orchestration agent. Analyzes requirements, designs software architecture, creates implementation plans, and writes TODO lists for the developer agent. Use this agent first to plan and structure software development before implementation begins.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                edit: "deny",
+                write: "deny",
+                todowrite: "allow",
+                read: "allow",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                webfetch: "allow",
+                websearch: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_ORCHESTRATION,
+            options: {},
+            mode: "primary",
+            native: true,
+          },
           general: {
             name: "general",
             description: `General-purpose agent for researching complex questions and executing multi-step tasks. Use this agent to execute multiple units of work in parallel.`,
@@ -237,13 +261,12 @@ export const layer = Layer.effect(
           },
           developer: {
             name: "developer",
-            description: `Expert software developer. Implements features, writes code, and invokes the test agent for verification. Use this agent to develop new features or fix bugs.`,
+            description: `Expert software developer. Implements features, writes code, and invokes the test agent for verification. Use this agent to develop new features or fix bugs based on the TODO list created by the orchestration agent.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
                 edit: "allow",
                 bash: "allow",
-                todowrite: "allow",
                 task: "allow",
               }),
               user,
@@ -334,7 +357,7 @@ export const layer = Layer.effect(
             agents,
             values(),
             sortBy(
-              [(x) => (cfg.default_agent ? x.name === cfg.default_agent : x.name === "build"), "desc"],
+              [(x) => (cfg.default_agent ? x.name === cfg.default_agent : x.name === "orchestration"), "desc"],
               [(x) => x.name, "asc"],
             ),
           )
@@ -349,7 +372,8 @@ export const layer = Layer.effect(
             if (agent.hidden === true) throw new Error(`default agent "${c.default_agent}" is hidden`)
             return agent.name
           }
-          const visible = Object.values(agents).find((a) => a.mode !== "subagent" && a.hidden !== true)
+          const visible = Object.values(agents).find((a) => a.mode !== "subagent" && a.hidden !== true && a.name === "orchestration") ||
+              Object.values(agents).find((a) => a.mode !== "subagent" && a.hidden !== true)
           if (!visible) throw new Error("no primary visible agent found")
           return visible.name
         })

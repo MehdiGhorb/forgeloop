@@ -62,7 +62,7 @@ export const { use: useLocal, provider: LocalProvider } = createSimpleContext({
           return agents()
         },
         current() {
-          return agents().find((x) => x.name === agentStore.current) ?? agents().at(0)
+          return agents().find((x) => x.name === agentStore.current) ?? agents().find((x) => x.name === "orchestration") ?? agents().at(0)
         },
         set(name: string) {
           if (!agents().some((x) => x.name === name))
