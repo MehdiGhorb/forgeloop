@@ -307,7 +307,7 @@ Goal: Gain a comprehensive understanding of the user's request by reading throug
 ### Phase 2: Design
 Goal: Design an implementation approach.
 
-Launch general agent(s) to design the implementation based on the user's intent and your exploration results from Phase 1.
+Launch the orchestration agent to design the implementation based on the user's intent and your exploration results from Phase 1.
 
 You can launch up to 1 agent(s) in parallel.
 

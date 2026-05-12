@@ -156,8 +156,14 @@ export const layer = Layer.effect(
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
-                edit: "deny",
-                write: "deny",
+                edit: {
+                  "*": "deny",
+                  "**/*.md": "allow",
+                },
+                write: {
+                  "*": "deny",
+                  "**/*.md": "allow",
+                },
                 todowrite: "allow",
                 read: "allow",
                 grep: "allow",
@@ -171,20 +177,6 @@ export const layer = Layer.effect(
             prompt: PROMPT_ORCHESTRATION,
             options: {},
             mode: "primary",
-            native: true,
-          },
-          general: {
-            name: "general",
-            description: `General-purpose agent for researching complex questions and executing multi-step tasks. Use this agent to execute multiple units of work in parallel.`,
-            permission: Permission.merge(
-              defaults,
-              Permission.fromConfig({
-                todowrite: "allow",
-              }),
-              user,
-            ),
-            options: {},
-            mode: "subagent",
             native: true,
           },
           explore: {

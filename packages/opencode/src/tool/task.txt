@@ -6,7 +6,7 @@ When using the Task tool, you must specify a subagent_type parameter to select w
 
 **1. Agent Chaining (MANDATORY after completing your part):**
 - After writing code → invoke test agent to test it
-- After planning → invoke developer agent to implement
+- After planning → invoke developer agent to implement (do not assume automatic handoff)
 - After implementing a feature → automatically invoke test agent
 - Example: You finish coding, say "Now I'll invoke the test agent" → use Task tool with subagent_type="test"
 

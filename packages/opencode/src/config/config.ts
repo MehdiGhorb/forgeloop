@@ -171,7 +171,6 @@ export const Info = Schema.Struct({
         plan: Schema.optional(ConfigAgent.Info),
         build: Schema.optional(ConfigAgent.Info),
         // subagent
-        general: Schema.optional(ConfigAgent.Info),
         explore: Schema.optional(ConfigAgent.Info),
         // specialized
         title: Schema.optional(ConfigAgent.Info),
