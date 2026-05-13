@@ -80,6 +80,37 @@ After tests complete:
 - **Linting**: Code must pass linting (bun lint, eslint, etc.)
 - **Typecheck**: `bun typecheck` must pass with zero errors
 
+## Execution Environment (DEFAULT)
+
+**Docker-First Approach (PRIORITY):**
+- Use Docker for ALL building, testing, and running scripts by default
+- Docker ensures reproducible environments, avoids dependency conflicts, and keeps the app production-ready
+- Benefits: eliminates "works on my machine" issues, ensures consistency across environments
+
+**Docker Fallback (if Docker unavailable):**
+1. **FIRST**: Check if Docker is installed and running
+   - Command: `docker --version` and `docker ps` (or use container-tools to get config)
+   - If both succeed → use Docker (go to Docker-First Approach above)
+   - If either fails → proceed to fallback
+
+2. **SECOND**: If Docker is unavailable, find work-arounds:
+   - Check if the required runtime is available locally (Python for FastAPI, Node for apps, etc.)
+   - If available: Execute locally BUT **ALWAYS WARN USER** with a message like:
+     ```
+     ⚠️  Docker not available. Executing locally instead. This may cause environment issues.
+     Consider installing Docker for a production-aligned setup.
+     ```
+   - If not available: Install the required runtime or guide user to install Docker
+
+3. **THIRD**: Always prioritize EXPLICIT USER REQUESTS:
+   - If user says "run locally" or "don't use Docker" → follow that request (override default)
+   - User intent always takes priority over the Docker-first default
+
+**Summary:**
+1. Try Docker first (production-ready)
+2. Fall back to local execution if Docker unavailable (with warning)
+3. Always respect explicit user requests (override both defaults)
+
 ## When to Invoke the Test Agent
 
 ```
