@@ -96,7 +96,7 @@ const table = sqliteTable("session", {
 
 - Avoid mocks as much as possible
 - Test actual implementation, do not duplicate logic into tests
-- Tests cannot run from repo root (guard: `do-not-run-tests-from-root`); run from package dirs like `packages/opencode`.
+- Tests cannot run from repo root (guard: `do-not-run-tests-from-root`); run from package dirs like `packages/forgeloop`.
 - Always run the app to verify there are nor errors
 - For web apps, ALWAYS use Playwright or another end-to-end flow test when available; for backend or library changes, use the narrowest targeted test or package check. (The choice of what framework to use is up to you, unless the user specifies otherwise.)
 - You must test the app after creating a new app or after changing the code at any level, even if the user doesn't explicitly ask you to.
@@ -104,7 +104,7 @@ const table = sqliteTable("session", {
 
 ## Type Checking
 
-- Always run `bun typecheck` from package directories (e.g., `packages/opencode`), never `tsc` directly.
+- Always run `bun typecheck` from package directories (e.g., `packages/forgeloop`), never `tsc` directly.
 
 ## Change Verification
 

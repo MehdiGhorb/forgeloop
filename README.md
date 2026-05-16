@@ -24,4 +24,4 @@ To completely uninstall ForgeLoop:
 rm -rf ~/.forgeloop
 ```
 
-This project was cloned from OpenCode and built upon: https://github.com/anomalyco/opencode
+This project was cloned from ForgeLoop and built upon: https://github.com/anomalyco/forgeloop
