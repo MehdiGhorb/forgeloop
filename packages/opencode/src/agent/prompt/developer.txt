@@ -111,6 +111,18 @@ After tests complete:
 2. Fall back to local execution if Docker unavailable (with warning)
 3. Always respect explicit user requests (override both defaults)
 
+## Workspace Boundary (MANDATORY)
+
+- Do NOT read, write, or modify files outside the current working directory
+- If a required change is outside the working directory, stop and report the limitation
+
+## Local Installation Rules (MANDATORY)
+
+- Do NOT install tools or dependencies directly on the host machine
+- Use Docker for production-ready stacks when possible
+- If Docker is unavailable, use per-project isolation (e.g., Python venv)
+- If the stack does not support virtual environments (e.g., Node/Bun), require Docker; if Docker is unavailable, stop and report the limitation
+
 ## When to Invoke the Test Agent
 
 ```

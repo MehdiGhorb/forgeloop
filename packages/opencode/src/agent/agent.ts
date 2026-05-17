@@ -13,6 +13,7 @@ import PROMPT_EXPLORE from "./prompt/explore.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
 import PROMPT_TEST from "./prompt/test.txt"
+import PROMPT_RUNTIME_QA from "./prompt/runtime-qa.txt"
 import PROMPT_DEVELOPER from "./prompt/developer.txt"
 import PROMPT_ORCHESTRATION from "./prompt/orchestration.txt"
 import { Permission } from "@/permission"
@@ -288,6 +289,28 @@ export const layer = Layer.effect(
               user,
             ),
             prompt: PROMPT_TEST,
+            options: {},
+            mode: "subagent",
+            native: true,
+          },
+          runtime_qa: {
+            name: "runtime_qa",
+            description: `Runtime QA agent. Runs the app in an isolated environment, validates real user flows while the app is running, and coordinates fixes with the developer and test agents before completion. Use this agent as the final gate after the developer and test agents have finished.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                edit: "deny",
+                bash: "allow",
+                todowrite: "allow",
+                task: "allow",
+                read: "allow",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_RUNTIME_QA,
             options: {},
             mode: "subagent",
             native: true,
