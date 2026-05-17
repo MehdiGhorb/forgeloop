@@ -16,6 +16,7 @@ import PROMPT_TEST from "./prompt/test.txt"
 import PROMPT_RUNTIME_QA from "./prompt/runtime-qa.txt"
 import PROMPT_DEVELOPER from "./prompt/developer.txt"
 import PROMPT_ORCHESTRATION from "./prompt/orchestration.txt"
+import PROMPT_MASTER from "./prompt/master.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -113,6 +114,23 @@ export const layer = Layer.effect(
         const user = Permission.fromConfig(cfg.permission ?? {})
 
         const agents: Record<string, Info> = {
+          master: {
+            name: "master",
+            description:
+              "Primary interface agent. Routes every request through orchestration, developer, test, and runtime QA subagents, then reports back to the user.",
+            options: {},
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                question: "allow",
+                plan_enter: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_MASTER,
+            mode: "primary",
+            native: true,
+          },
           build: {
             name: "build",
             description: "The default agent. Executes tools based on configured permissions.",
@@ -153,10 +171,11 @@ export const layer = Layer.effect(
           },
           orchestration: {
             name: "orchestration",
-            description: `Expert software architect and orchestration agent. Analyzes requirements, designs software architecture, creates implementation plans, and writes TODO lists for the developer agent. Use this agent first to plan and structure software development before implementation begins.`,
+            description: `Expert software architect and orchestration agent. Analyzes requirements, designs software architecture, creates implementation plans, and writes TODO lists. Use this agent first to plan and structure software development before implementation begins.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
+                task: "deny",
                 edit: {
                   "*": "deny",
                   "**/*.md": "allow",
@@ -177,7 +196,7 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_ORCHESTRATION,
             options: {},
-            mode: "primary",
+            mode: "subagent",
             native: true,
           },
           explore: {
@@ -186,6 +205,7 @@ export const layer = Layer.effect(
               defaults,
               Permission.fromConfig({
                 "*": "deny",
+                task: "deny",
                 grep: "allow",
                 glob: "allow",
                 list: "allow",
@@ -254,27 +274,28 @@ export const layer = Layer.effect(
           },
           developer: {
             name: "developer",
-            description: `Expert software developer. Implements features, writes code, and invokes the test agent for verification. Use this agent to develop new features or fix bugs based on the TODO list created by the orchestration agent.`,
+            description: `Expert software developer. Implements features and writes code based on the TODO list created by the orchestration agent.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
                 edit: "allow",
                 bash: "allow",
-                task: "allow",
+                task: "deny",
               }),
               user,
             ),
             prompt: PROMPT_DEVELOPER,
             options: {},
-            mode: "primary",
+            mode: "subagent",
             native: true,
           },
           test: {
             name: "test",
-            description: `Quality assurance and testing specialist. Creates test plans, writes comprehensive tests, and validates code quality. Use this agent after code development is complete to ensure thorough test coverage and code reliability. This agent may ONLY modify test files; it must not modify main source files. If changes to source are required, report them to the developer agent instead of applying persistent edits.`,
+            description: `Quality assurance and testing specialist. Creates test plans, writes comprehensive tests, and validates code quality. Use this agent after code development is complete to ensure thorough test coverage and code reliability. This agent may ONLY modify test files; it must not modify main source files. If changes to source are required, report them to the master agent instead of applying persistent edits.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
+                task: "deny",
                 // Deny edits to main source by default; explicitly allow edits only under test file paths
                 edit: {
                   "*": "deny",
@@ -295,14 +316,14 @@ export const layer = Layer.effect(
           },
           runtime_qa: {
             name: "runtime_qa",
-            description: `Runtime QA agent. Runs the app in an isolated environment, validates real user flows while the app is running, and coordinates fixes with the developer and test agents before completion. Use this agent as the final gate after the developer and test agents have finished.`,
+            description: `Runtime QA agent. Runs the app in an isolated environment and validates real user flows while the app is running. Use this agent as the final gate after developer and test agents have finished.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
+                task: "deny",
                 edit: "deny",
                 bash: "allow",
                 todowrite: "allow",
-                task: "allow",
                 read: "allow",
                 grep: "allow",
                 glob: "allow",
@@ -372,7 +393,7 @@ export const layer = Layer.effect(
             agents,
             values(),
             sortBy(
-              [(x) => (cfg.default_agent ? x.name === cfg.default_agent : x.name === "orchestration"), "desc"],
+              [(x) => (cfg.default_agent ? x.name === cfg.default_agent : x.name === "master"), "desc"],
               [(x) => x.name, "asc"],
             ),
           )
@@ -387,7 +408,7 @@ export const layer = Layer.effect(
             if (agent.hidden === true) throw new Error(`default agent "${c.default_agent}" is hidden`)
             return agent.name
           }
-          const visible = Object.values(agents).find((a) => a.mode !== "subagent" && a.hidden !== true && a.name === "orchestration") ||
+            const visible = Object.values(agents).find((a) => a.mode !== "subagent" && a.hidden !== true && a.name === "master") ||
               Object.values(agents).find((a) => a.mode !== "subagent" && a.hidden !== true)
           if (!visible) throw new Error("no primary visible agent found")
           return visible.name

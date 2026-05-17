@@ -26,40 +26,26 @@
 - If errors, fix them and run typecheck again
 - Continue until ✅ passes
 
-### STEP 5: INVOKE TEST AGENT (MANDATORY!)
-**YOU MUST DO THIS NOW** - No exceptions, no skipping.
-
-After typecheck passes ✅, you MUST immediately call the Task tool like this:
-
-```
-Use the Task tool with:
-- description: "Test [feature name]"  
-- subagent_type: "test"
-- prompt: "Test the code I just implemented. It's in [file paths]. Test [what needs testing]. Create a TODO list first, write comprehensive tests, run them, and report results."
-```
-
-**WAIT** for the test agent to complete and report results.
-
-### STEP 6: Report Final Status
-After tests complete:
-- If ✅ ALL PASS: Say "✅ Complete: [feature] implemented and tested"
-- If ❌ TESTS FAIL: Fix the code and re-run from Step 4
+### STEP 5: REPORT BACK TO MASTER (MANDATORY)
+After typecheck passes ✅, report back to the master agent with:
+- A concise summary of what you changed
+- File paths touched
+- How to validate locally
+- A request for the test agent to run
 
 ---
 
 ## CRITICAL RULES
 
-🔴 **YOU MUST CALL THE TASK TOOL** after typecheck passes - this is NOT optional
-🔴 **DO NOT say "done"** until test agent finishes and reports
-🔴 **IF YOU SKIP THE TASK TOOL, YOU ARE BREAKING THE WORKFLOW**
-🔴 The task tool call MUST happen - that's when test agent runs
+🔴 **YOU MUST REPORT TO MASTER** after typecheck passes - this is NOT optional
+🔴 **DO NOT say "done"** until the master agent confirms testing is complete
+🔴 **DO NOT use the Task tool** - only the master agent can invoke other agents
 
 ## Tools Available
 
 - **todowrite**: Create task lists (Step 1)
 - **Edit/Write**: Modify code (Step 3)
 - **Bash**: Run typecheck (Step 4)  
-- **Task**: INVOKE TEST AGENT (Step 5) ← THIS IS THE CRITICAL ONE
 
 ## Tools You Have
 
@@ -68,7 +54,6 @@ After tests complete:
 - **Edit/Write**: Create or modify code files
 - **Bash**: Run build, lint, typecheck commands
 - **TodoWrite**: Create and update your development TODO list
-- **Task**: Invoke the test agent to test your code (use subagent_type="test")
 
 ## Code Quality Standards
 
@@ -123,37 +108,27 @@ After tests complete:
 - If Docker is unavailable, use per-project isolation (e.g., Python venv)
 - If the stack does not support virtual environments (e.g., Node/Bun), require Docker; if Docker is unavailable, stop and report the limitation
 
-## When to Invoke the Test Agent
+## When to Report to Master
 
-```
-You → use the Task tool to invoke test agent when:
+Report to the master agent when:
 1. ✅ Implementation is complete
 2. ✅ `bun typecheck` passes (no TS errors)
-3. ✅ Code is committed to repo or saved
+3. ✅ Code is saved
 4. ✅ Ready for comprehensive testing
-
-Example task invocation:
-{
-  "description": "Test new API endpoint implementation",
-  "subagent_type": "test",
-  "prompt": "Test the new endpoints in src/api/users.ts. Write unit tests and integration tests. Verify error handling and edge cases. Run all tests and report results."
-}
-```
 
 ## MANDATORY Steps (Do NOT skip)
 
 1. ✅ Create TODO list FIRST (Step 1 - todowrite tool)
-2. ✅ Run typecheck BEFORE invoking test agent
-3. ✅ AUTOMATICALLY invoke test agent AFTER typecheck passes (use Task tool)
-4. ✅ Let test agent run completely - do NOT interrupt
-5. ✅ Wait for test agent results before declaring "done"
+2. ✅ Run typecheck BEFORE reporting to master
+3. ✅ Report to master AFTER typecheck passes
+4. ✅ Wait for master to confirm test results before declaring "done"
 
 ## Do NOT
 
 - Skip the TODO list creation (do it FIRST in every session)
 - Commit/claim code is "done" without running typecheck
-- Invoke test agent before typecheck passes (wait for ✅ typecheck first)
+- Report to master before typecheck passes (wait for ✅ typecheck first)
 - Say "development complete" before tests run (tests are part of development)
 - Leave commented-out code or debug statements
-- Skip the test agent invocation - it MUST happen after typecheck passes
-- Mark todo complete until test agent reports success
+- Skip reporting to master after typecheck passes
+- Mark todo complete until the master agent confirms test success
