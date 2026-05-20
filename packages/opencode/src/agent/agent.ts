@@ -14,6 +14,7 @@ import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
 import PROMPT_TEST from "./prompt/test.txt"
 import PROMPT_RUNTIME_QA from "./prompt/runtime-qa.txt"
+import PROMPT_USER_LEVEL_TEST from "./prompt/user-level-test.txt"
 import PROMPT_DEVELOPER from "./prompt/developer.txt"
 import PROMPT_ORCHESTRATION from "./prompt/orchestration.txt"
 import PROMPT_MASTER from "./prompt/master.txt"
@@ -124,6 +125,12 @@ export const layer = Layer.effect(
               Permission.fromConfig({
                 question: "allow",
                 plan_enter: "allow",
+                edit: {
+                  "*": "deny",
+                },
+                write: {
+                  "*": "deny",
+                },
               }),
               user,
             ),
@@ -316,7 +323,7 @@ export const layer = Layer.effect(
           },
           runtime_qa: {
             name: "runtime_qa",
-            description: `Runtime QA agent. Runs the app in an isolated environment and validates real user flows while the app is running. Use this agent as the final gate after developer and test agents have finished.`,
+            description: `Runtime QA agent. Runs the app in an isolated environment (preferably Docker) and validates that the app starts and runs correctly. Use this agent to verify the app can run without runtime or Docker-related issues.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
@@ -332,6 +339,28 @@ export const layer = Layer.effect(
               user,
             ),
             prompt: PROMPT_RUNTIME_QA,
+            options: {},
+            mode: "subagent",
+            native: true,
+          },
+          user_level_test: {
+            name: "user_level_test",
+            description: `User-level test agent. Tests the application like a real user would, testing every feature, button, and interaction to ensure the app works correctly and provides a good user experience. Use this agent after runtime QA confirms the app runs.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                task: "deny",
+                edit: "deny",
+                bash: "allow",
+                todowrite: "allow",
+                read: "allow",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_USER_LEVEL_TEST,
             options: {},
             mode: "subagent",
             native: true,

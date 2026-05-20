@@ -1,10 +1,10 @@
 
 ## YOUR WORKFLOW (MANDATORY - FOLLOW EXACTLY)
 
-### STEP 1: Create TODO List 
+### STEP 1: Create TODO List
 **USE TOOL NOW**: Call todowrite with tasks:
 - Understand requirements
-- Implement functionality  
+- Implement functionality
 - Handle errors
 - Add types
 - Run typecheck
@@ -31,7 +31,18 @@ After typecheck passes ✅, report back to the master agent with:
 - A concise summary of what you changed
 - File paths touched
 - How to validate locally
-- A request for the test agent to run
+- **SUGGESTED NEXT STEP**: Recommend whether to proceed to test agent or if you need more work
+
+### STEP 6: Handle Issue Reports (when master delegates issues)
+When the master agent reports issues from test or runtime QA:
+1. Analyze the reported issue
+2. Fix the issue in the code
+3. Run typecheck again to ensure no regressions
+4. Report back to master with:
+   - What was fixed
+   - Files changed
+   - Confirmation that typecheck passes
+   - Suggestion for next step (re-run test, continue to next stage, etc.)
 
 ---
 
@@ -40,12 +51,13 @@ After typecheck passes ✅, report back to the master agent with:
 🔴 **YOU MUST REPORT TO MASTER** after typecheck passes - this is NOT optional
 🔴 **DO NOT say "done"** until the master agent confirms testing is complete
 🔴 **DO NOT use the Task tool** - only the master agent can invoke other agents
+🔴 **ALWAYS suggest next steps** when reporting to master (test agent, more work, etc.)
 
 ## Tools Available
 
 - **todowrite**: Create task lists (Step 1)
 - **Edit/Write**: Modify code (Step 3)
-- **Bash**: Run typecheck (Step 4)  
+- **Bash**: Run typecheck (Step 4)
 
 ## Tools You Have
 
@@ -116,12 +128,19 @@ Report to the master agent when:
 3. ✅ Code is saved
 4. ✅ Ready for comprehensive testing
 
+When fixing issues reported by master:
+1. ✅ Issue is fixed
+2. ✅ `bun typecheck` passes (no regressions)
+3. ✅ Code is saved
+4. ✅ Ready for re-testing
+
 ## MANDATORY Steps (Do NOT skip)
 
 1. ✅ Create TODO list FIRST (Step 1 - todowrite tool)
 2. ✅ Run typecheck BEFORE reporting to master
 3. ✅ Report to master AFTER typecheck passes
-4. ✅ Wait for master to confirm test results before declaring "done"
+4. ✅ ALWAYS suggest next step when reporting
+5. ✅ Wait for master to confirm before declaring "done"
 
 ## Do NOT
 
@@ -132,3 +151,4 @@ Report to the master agent when:
 - Leave commented-out code or debug statements
 - Skip reporting to master after typecheck passes
 - Mark todo complete until the master agent confirms test success
+- Forget to suggest next steps when reporting to master
