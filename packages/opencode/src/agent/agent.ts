@@ -18,6 +18,9 @@ import PROMPT_USER_LEVEL_TEST from "./prompt/user-level-test.txt"
 import PROMPT_DEVELOPER from "./prompt/developer.txt"
 import PROMPT_ORCHESTRATION from "./prompt/orchestration.txt"
 import PROMPT_MASTER from "./prompt/master.txt"
+import PROMPT_RESEARCH from "./prompt/research.txt"
+import PROMPT_DESIGN_UX from "./prompt/design-ux.txt"
+import PROMPT_OPTIMIZATION from "./prompt/optimization.txt"
 import { Permission } from "@/permission"
 import { mergeDeep, pipe, sortBy, values } from "remeda"
 import { Global } from "@opencode-ai/core/global"
@@ -205,6 +208,7 @@ export const layer = Layer.effect(
             options: {},
             mode: "subagent",
             native: true,
+            steps: 50,
           },
           explore: {
             name: "explore",
@@ -293,6 +297,7 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_DEVELOPER,
             options: {},
+            steps: 100,
             mode: "subagent",
             native: true,
           },
@@ -318,6 +323,7 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_TEST,
             options: {},
+            steps: 50,
             mode: "subagent",
             native: true,
           },
@@ -340,6 +346,7 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_RUNTIME_QA,
             options: {},
+            steps: 30,
             mode: "subagent",
             native: true,
           },
@@ -362,6 +369,80 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_USER_LEVEL_TEST,
             options: {},
+            steps: 100,
+            mode: "subagent",
+            native: true,
+          },
+          research: {
+            name: "research",
+            description: `Research agent. Conducts deep, thorough research on requirements, best practices, patterns, and industry standards for the application to be built. Use this agent early in the process to ensure comprehensive understanding and planning.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                task: "deny",
+                edit: "deny",
+                bash: "allow",
+                todowrite: "allow",
+                read: "allow",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                websearch: "allow",
+                webfetch: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_RESEARCH,
+            options: {},
+            steps: 50,
+            mode: "subagent",
+            native: true,
+          },
+          design_ux: {
+            name: "design_ux",
+            description: `Design and UX agent. Designs a professional, polished, and exceptional user experience for the application. Use this agent to create comprehensive design systems and UI specifications.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                task: "deny",
+                edit: "allow",
+                bash: "allow",
+                todowrite: "allow",
+                read: "allow",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+                websearch: "allow",
+                webfetch: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_DESIGN_UX,
+            options: {},
+            steps: 50,
+            mode: "subagent",
+            native: true,
+          },
+          optimization: {
+            name: "optimization",
+            description: `Optimization agent. Optimizes the application for performance, code quality, and production readiness. Use this agent after implementation to add advanced features, optimize performance, and ensure production readiness.`,
+            permission: Permission.merge(
+              defaults,
+              Permission.fromConfig({
+                task: "deny",
+                edit: "allow",
+                bash: "allow",
+                todowrite: "allow",
+                read: "allow",
+                grep: "allow",
+                glob: "allow",
+                list: "allow",
+              }),
+              user,
+            ),
+            prompt: PROMPT_OPTIMIZATION,
+            options: {},
+            steps: 100,
             mode: "subagent",
             native: true,
           },
