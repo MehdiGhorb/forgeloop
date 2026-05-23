@@ -352,7 +352,7 @@ export const layer = Layer.effect(
           },
           user_level_test: {
             name: "user_level_test",
-            description: `User-level test agent. Tests the application like a real user would, testing every feature, button, and interaction to ensure the app works correctly and provides a good user experience. Use this agent after runtime QA confirms the app runs.`,
+            description: `User-level test agent. Tests the application like a real user would, testing EVERY feature, button, and interaction to ensure the app works correctly and provides an EXCEPTIONAL user experience. This agent is EXTREMELY STRICT and will NOT pass the app unless it is PRODUCTION-READY with ZERO issues. Use this agent after runtime QA confirms the app runs.`,
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
@@ -369,7 +369,7 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_USER_LEVEL_TEST,
             options: {},
-            steps: 100,
+            steps: 200,
             mode: "subagent",
             native: true,
           },

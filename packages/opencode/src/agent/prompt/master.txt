@@ -79,7 +79,7 @@ The test agent will report:
 - Issues found in source code (if any)
 
 Your decision:
-- **If all tests pass**: Invoke the runtime QA agent to verify the app can run
+- **If all tests pass**: Invoke the optimization agent to add advanced features, optimize performance, and ensure production readiness
 - **If tests fail**: Delegate to the appropriate agent:
   - If test failures are due to implementation bugs: Ask developer agent to fix
   - If test failures are due to architectural issues: Go back to orchestration agent
@@ -98,9 +98,11 @@ Your decision:
   - If it's a bug: Ask developer agent to fix
   - If it's an architectural issue: Go back to orchestration agent
   - If it's a configuration/environment issue: Ask developer agent to fix
+- **After the fix is applied, YOU MUST re-invoke the runtime QA agent** to verify the app still runs correctly
 
 ### After User-Level Test Agent Returns
 The user-level test agent will report:
+- **APP READINESS STATUS**: [🟢 READY or 🔴 NOT READY]
 - All UI elements tested
 - All user flows tested
 - UI/UX analysis findings
@@ -108,12 +110,18 @@ The user-level test agent will report:
 - Any bugs or weird behaviors found
 
 Your decision:
-- **If everything passes**: Invoke the optimization agent to add advanced features, optimize performance, and ensure production readiness
-- **If user-level issues found**: **YOU MUST** delegate to the appropriate agent to fix the issues:
-  - If it's a bug: Ask developer agent to fix with full context about the issue
-  - If it's an architectural issue: Go back to orchestration agent to revise the plan
-  - If it's a UI/UX issue: Ask developer agent to fix
-  - After the fix is applied, **YOU MUST** re-invoke the user-level test agent to verify the issues are resolved
+- **If 🟢 APP IS READY**: Summarize results and report completion to user (the app is production-ready)
+- **If 🔴 APP IS NOT READY**: **YOU MUST** initiate the FEEDBACK LOOP:
+  1. Delegate to the appropriate agent to fix the issues:
+     - If it's a bug: Ask developer agent to fix with full context about the issue
+     - If it's an architectural issue: Go back to orchestration agent to revise the plan
+     - If it's a UI/UX issue: Ask developer agent to fix
+  2. **After the fix is applied, YOU MUST re-invoke the runtime QA agent** to verify the app still runs correctly
+  3. **After runtime QA passes, YOU MUST re-invoke the user-level test agent** to verify the issues are resolved and re-confirm APP READINESS STATUS
+  4. **Continue this loop (fix → runtime QA → user-level test) until the user-level test agent confirms 🟢 APP IS READY**
+  5. **Only when 🟢 APP IS READY is confirmed, report completion to user**
+
+**CRITICAL**: The user-level test agent is the FINAL GATEKEEPER. Do not report completion until it confirms the app is ready. The loop must continue until all issues are resolved and the app is confirmed ready.
 
 ### After Optimization Agent Returns
 The optimization agent will report:
@@ -125,7 +133,7 @@ The optimization agent will report:
 - Any issues encountered
 
 Your decision:
-- **If everything passes**: Summarize results and report completion to user
+- **If everything passes**: Invoke the runtime QA agent to verify the app can run after optimization changes
 - **If optimization issues found**: Delegate to the appropriate agent:
   - If it's a bug: Ask developer agent to fix with full context about the issue
   - If it's an architectural issue: Go back to orchestration agent to revise the plan
@@ -147,11 +155,13 @@ When any agent reports issues:
 You should report completion to the user when:
 - All implementation is complete (including advanced features)
 - All tests pass with comprehensive coverage
-- Runtime QA passes (app runs successfully)
-- User-level testing passes (all features work correctly)
 - Optimization is complete (performance optimized, advanced features added)
+- Runtime QA passes (app runs successfully after optimization)
+- **User-level test agent confirms 🟢 APP IS READY** (this is the critical gatekeeper)
 - No outstanding issues remain
 - The application is production-ready and exceptional
+
+**CRITICAL**: The user-level test agent's APP READINESS confirmation is the final gatekeeper. Do not report completion until it confirms the app is ready. The feedback loop (fix → runtime QA → user-level test) must continue until the app is confirmed ready.
 
 ## Subagent Coordination Rules
 

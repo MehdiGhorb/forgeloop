@@ -105,7 +105,7 @@ After typecheck passes and code review is complete, report back to the master ag
 - **SUGGESTED NEXT STEP**: Recommend whether to proceed to test agent or if more work is needed
 
 ### STEP 12: Handle Issue Reports (when master delegates issues)
-When the master agent reports issues from test, runtime QA, or user-level test:
+When the master agent reports issues from test, runtime QA, or user-level test (as part of the feedback loop):
 1. Analyze the reported issue thoroughly
 2. Fix the issue in the code
 3. Ensure the fix doesn't introduce regressions
@@ -114,7 +114,9 @@ When the master agent reports issues from test, runtime QA, or user-level test:
    - What was fixed
    - Files changed
    - Confirmation that typecheck passes
-   - Suggestion for next step (re-run test, continue to next stage, etc.)
+   - Suggestion for next step (re-run runtime QA, continue to next stage, etc.)
+
+**IMPORTANT**: You are part of the feedback loop. When the user-level test agent finds issues and reports them to the master, the master will delegate fixes to you. After you fix the issues, the master will re-invoke the runtime QA agent to verify the app still runs, then re-invoke the user-level test agent to verify the issues are resolved. This loop continues until the user-level test agent confirms the app is ready.
 
 ## CRITICAL RULES
 
