@@ -21,7 +21,7 @@ import { errorMessage } from "@/util/error"
 import * as Log from "@opencode-ai/core/util/log"
 import { isRecord } from "@/util/record"
 
-const DOOM_LOOP_THRESHOLD = 3
+const DOOM_LOOP_THRESHOLD = 10
 const log = Log.create({ service: "session.processor" })
 
 export type Result = "compact" | "stop" | "continue"

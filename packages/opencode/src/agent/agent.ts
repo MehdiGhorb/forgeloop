@@ -373,7 +373,7 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_USER_LEVEL_TEST,
             options: {},
-            steps: 350,
+            steps: 1000,
             mode: "subagent",
             native: true,
           },
