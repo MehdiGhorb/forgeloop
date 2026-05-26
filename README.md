@@ -3,7 +3,7 @@
 DeepRise is an autonomous multi-agent AI coding system that builds, tests, and improves apps end-to-end with minimal input. Once given a direction, swarms of agents continue working independently until the task is done — including proper real-user-style testing and iteration.
 
 ![DeepRise Demo](demo/sample.png)
-![DeepRise Structure](demo/structure.png)
+![DeepRise Structure](demo/agent_chart_arch.jpg)
 
 ---
 
