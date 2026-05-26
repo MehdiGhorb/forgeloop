@@ -360,7 +360,7 @@ export const layer = Layer.effect(
             permission: Permission.merge(
               defaults,
               Permission.fromConfig({
-                task: "deny",
+                task: "allow",
                 edit: "deny",
                 bash: "allow",
                 todowrite: "allow",
@@ -373,7 +373,7 @@ export const layer = Layer.effect(
             ),
             prompt: PROMPT_USER_LEVEL_TEST,
             options: {},
-            steps: 1000,
+            steps: 7000,
             mode: "subagent",
             native: true,
           },
